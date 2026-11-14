@@ -14,6 +14,17 @@ namespace youtube_tool
             DataContext = new MainWindowViewModel();
         }
 
+        protected override void OnClosing(WindowClosingEventArgs e)
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.Cancel();
+                vm.Dispose();
+            }
+
+            base.OnClosing(e);
+        }
+
         private async void SelectFolder_Click(object? sender, RoutedEventArgs e)
         {
             var topLevel = TopLevel.GetTopLevel(this);
