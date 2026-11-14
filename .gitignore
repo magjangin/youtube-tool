@@ -1,0 +1,23 @@
+# 빌드 및 출력 폴더
+[Bb]in/
+[Oo]bj/
+publish/
+TestResults/
+
+# Visual Studio / IDE / Claude
+.vs/
+.vscode/
+.claude/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS / 임시 파일
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+*.log
+*.tmp

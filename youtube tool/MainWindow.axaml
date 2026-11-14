@@ -1,0 +1,137 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:youtube_tool.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="650"
+        Width="850" Height="680"
+        WindowStartupLocation="CenterScreen"
+        x:Class="youtube_tool.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="YouTube Batch Suite - 4-in-1 Downloader"
+        Background="#18181B">
+
+    <Window.Styles>
+        <!-- Custom Button Accent Styles -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#E50914" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="16,10" />
+        </Style>
+        <Style Selector="Button.primary:pointerover">
+            <Setter Property="Background" Value="#FF1E27" />
+        </Style>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#27272A" />
+            <Setter Property="Foreground" Value="#E4E4E7" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="12,8" />
+        </Style>
+        <Style Selector="Button.secondary:pointerover">
+            <Setter Property="Background" Value="#3F3F46" />
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="24">
+        <!-- HEADER -->
+        <StackPanel Grid.Row="0" Spacing="6" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <Border Background="#E50914" CornerRadius="8" Padding="10,6">
+                    <TextBlock Text="▶ YouTube" Foreground="White" FontWeight="Bold" FontSize="16"/>
+                </Border>
+                <TextBlock Text="Batch Suite (4-in-1 Downloader)" Foreground="White" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Text="유튜브 링크 입력 한 번으로 동영상(MP4), 오디오(MP3), 썸네일(JPG), 메타데이터(TXT)를 일괄 저장합니다." Foreground="#A1A1AA" FontSize="13"/>
+        </StackPanel>
+
+        <!-- MAIN CONTENT CONTENT AREA -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="20">
+                <!-- URL INPUT CARD -->
+                <Border Background="#27272A" CornerRadius="12" Padding="20" BorderBrush="#3F3F46" BorderThickness="1">
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
+                        <TextBlock Grid.Row="0" Text="유튜브 동영상 링크 (URL)" Foreground="#E4E4E7" FontWeight="Medium" FontSize="14"/>
+                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <TextBox Grid.Column="0" Text="{Binding VideoUrl}" PlaceholderText="https://www.youtube.com/watch?v=..." 
+                                     Height="42" VerticalContentAlignment="Center" Background="#18181B" Foreground="White"
+                                     BorderBrush="#52525B" CornerRadius="6" FontSize="14"/>
+                            <Button Grid.Column="1" Classes="secondary" Content="🔍 분석하기" 
+                                    Command="{Binding FetchInfoCommand}" IsEnabled="{Binding !IsDownloading}" Height="42"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- VIDEO PREVIEW CARD (Visible when info loaded) -->
+                <Border Background="#27272A" CornerRadius="12" Padding="20" BorderBrush="#3F3F46" BorderThickness="1"
+                        IsVisible="{Binding IsInfoLoaded}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="20">
+                        <!-- Thumbnail -->
+                        <Border Grid.Column="0" CornerRadius="8" ClipToBounds="True" Width="240" Height="135" Background="#18181B">
+                            <Image Source="{Binding ThumbnailImage}" Stretch="Uniform"/>
+                        </Border>
+                        
+                        <!-- Metadata Detail -->
+                        <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                            <Grid RowDefinitions="Auto,Auto" RowSpacing="4">
+                                <TextBlock Grid.Row="0" Text="곡/영상 제목 (저장 파일명으로 사용되며 필요시 수정 가능)" Foreground="#A1A1AA" FontSize="12" FontWeight="Medium"/>
+                                <TextBox Grid.Row="1" Text="{Binding VideoTitle, Mode=TwoWay}" 
+                                         Foreground="White" FontSize="15" FontWeight="SemiBold"
+                                         Background="#18181B" BorderBrush="#52525B" CornerRadius="6"
+                                         VerticalContentAlignment="Center" Height="36"/>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <TextBlock Text="{Binding VideoInfo.Channel, StringFormat='👤 {0}'}" Foreground="#A1A1AA" FontSize="13"/>
+                                <TextBlock Text="{Binding VideoInfo.Duration, StringFormat='⏱ {0}'}" Foreground="#A1A1AA" FontSize="13"/>
+                            </StackPanel>
+                            
+                            <Border Background="#18181B" CornerRadius="6" Padding="10" Margin="0,2,0,0">
+                                <TextBlock Text="✨ 일괄 저장 대상: [MP4 고화질 동영상] + [MP3 음원] + [원본 썸네일] + [상세 메타데이터 TXT]" 
+                                           Foreground="#38BDF8" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- SETTINGS &amp; DOWNLOAD CARD -->
+                <Border Background="#27272A" CornerRadius="12" Padding="20" BorderBrush="#3F3F46" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <!-- Save Folder Selection -->
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="8">
+                            <TextBlock Grid.Row="0" Text="저장 경로 폴더" Foreground="#E4E4E7" FontWeight="Medium" FontSize="14"/>
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                                <TextBox Grid.Column="0" Text="{Binding SaveFolderPath, Mode=TwoWay}" 
+                                         Height="38" VerticalContentAlignment="Center" Background="#18181B" Foreground="#D4D4D8"
+                                         BorderBrush="#52525B" CornerRadius="6"
+                                         PlaceholderText="저장할 폴더 경로를 입력하세요 (예: C:\Users\화평\Downloads\YouTube_Downloads)"/>
+                                <Button Grid.Column="1" Classes="secondary" Content="📁 폴더 변경" Click="SelectFolder_Click" IsEnabled="{Binding !IsDownloading}"/>
+                                <Button Grid.Column="2" Classes="secondary" Content="📂 폴더 열기" Command="{Binding OpenFolderCommand}"/>
+                            </Grid>
+                        </Grid>
+
+                        <!-- Start Batch Download Button -->
+                        <Button Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Height="48"
+                                Command="{Binding StartBatchDownloadCommand}" IsEnabled="{Binding !IsDownloading}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="⚡ 4-in-1 일괄 다운로드 시작" FontSize="16" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- FOOTER / PROGRESS STATUS -->
+        <Border Grid.Row="2" Background="#27272A" CornerRadius="10" Padding="16" Margin="0,16,0,0" BorderBrush="#3F3F46" BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" Foreground="#F4F4F5" FontSize="13" FontWeight="Medium"/>
+                    <TextBlock Grid.Column="1" Text="{Binding ProgressValue, StringFormat='{}{0:0}%'}" Foreground="#E50914" FontSize="13" FontWeight="Bold"/>
+                </Grid>
+                <ProgressBar Grid.Row="1" Value="{Binding ProgressValue}" Minimum="0" Maximum="100" Height="8" 
+                             Background="#18181B" Foreground="#E50914" CornerRadius="4"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
